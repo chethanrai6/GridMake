@@ -20,6 +20,13 @@ const PORT = process.env.PORT || 5000;
 
 const normalizeOrigin = (origin) => origin.replace(/\/+$/, '');
 
+const isDefaultAllowedOrigin = (origin) => {
+    const normalizedOrigin = normalizeOrigin(origin);
+
+    return normalizedOrigin === 'http://localhost:3000'
+        || /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(normalizedOrigin);
+};
+
 const configuredOrigins = [
     ...(process.env.CLIENT_URLS || '').split(','),
     process.env.CLIENT_URL || ''
@@ -35,7 +42,11 @@ const allowedOrigins = configuredOrigins.length > 0
 
 const corsOrigin = (origin, callback) => {
     // Allow server-to-server requests and tools that don't send an Origin header
-    if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
+    if (!origin) {
+        return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(normalizeOrigin(origin)) || isDefaultAllowedOrigin(origin)) {
         return callback(null, true);
     }
 
