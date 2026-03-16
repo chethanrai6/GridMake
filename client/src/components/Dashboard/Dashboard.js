@@ -11,7 +11,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
 
   const handleNewProject = () => {
     navigate('/editor');

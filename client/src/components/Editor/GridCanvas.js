@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle, useRef, forwardRef } from 'react';
 
 const GridCanvas = forwardRef(({ image, gridSettings }, ref) => {
   const canvasRef = useRef(null);
@@ -31,44 +31,7 @@ const GridCanvas = forwardRef(({ image, gridSettings }, ref) => {
     }
   }));
 
-  useEffect(() => {
-    drawCanvas();
-  }, [image, gridSettings]);
-
-  const drawCanvas = () => {
-    if (!canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-
-    // If we have an image, set canvas size to match the image size
-    if (image) {
-      canvas.width = image.width;
-      canvas.height = image.height;
-    } else {
-      // Default canvas size if no image
-      canvas.width = 800;
-      canvas.height = 600;
-    }
-
-    // Clear the entire canvas first
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw the uploaded image if it exists
-    if (image) {
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    }
-
-    // Check if the grid should be visible
-    if (!gridSettings.gridVisible) {
-      return; // Stop here if the grid is hidden
-    }
-
-    // Draw grid
-    drawGrid(ctx, canvas.width, canvas.height, gridSettings);
-  };
-
-  const drawGrid = (ctx, width, height, settings) => {
+  const drawGrid = useCallback((ctx, width, height, settings) => {
     // Get all current grid settings (matching your vanilla JS names)
     const numCols = settings.cols;
     const numRows = settings.rows;
@@ -108,7 +71,44 @@ const GridCanvas = forwardRef(({ image, gridSettings }, ref) => {
     }
 
     ctx.stroke(); // Render all the lines at once
-  };
+  }, []);
+
+  const drawCanvas = useCallback(() => {
+    if (!canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    // If we have an image, set canvas size to match the image size
+    if (image) {
+      canvas.width = image.width;
+      canvas.height = image.height;
+    } else {
+      // Default canvas size if no image
+      canvas.width = 800;
+      canvas.height = 600;
+    }
+
+    // Clear the entire canvas first
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the uploaded image if it exists
+    if (image) {
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    }
+
+    // Check if the grid should be visible
+    if (!gridSettings.gridVisible) {
+      return; // Stop here if the grid is hidden
+    }
+
+    // Draw grid
+    drawGrid(ctx, canvas.width, canvas.height, gridSettings);
+  }, [drawGrid, image, gridSettings]);
+
+  useEffect(() => {
+    drawCanvas();
+  }, [drawCanvas]);
 
   return (
     <canvas

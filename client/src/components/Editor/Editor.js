@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useProject } from '../../contexts/ProjectContext';
@@ -8,6 +8,15 @@ import GridCanvas from './GridCanvas';
 import GridControls from './GridControls';
 import ImageUpload from './ImageUpload';
 
+const DEFAULT_GRID_SETTINGS = {
+  rows: 10,
+  cols: 10,
+  lineColor: '#000000',
+  lineThickness: 2,
+  diagonals: false,
+  gridVisible: true
+};
+
 const Editor = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -15,18 +24,20 @@ const Editor = () => {
   const canvasRef = useRef(null);
 
   const [image, setImage] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
   const [imagePath, setImagePath] = useState(null);
-  const [gridSettings, setGridSettings] = useState({
-    rows: 10,
-    cols: 10,
-    lineColor: '#000000',
-    lineThickness: 2,
-    diagonals: false,
-    gridVisible: true
-  });
+  const [gridSettings, setGridSettings] = useState(DEFAULT_GRID_SETTINGS);
   const [projectName, setProjectName] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const loadProject = useCallback(async (id) => {
+    setLoading(true);
+    const result = await getProject(id);
+    if (!result.success) {
+      toast.error(result.message);
+      navigate('/dashboard');
+    }
+    setLoading(false);
+  }, [getProject, navigate]);
 
   useEffect(() => {
     if (projectId) {
@@ -36,14 +47,14 @@ const Editor = () => {
       setCurrentProject(null);
       setProjectName('');
       setImage(null);
-      setImageFile(null);
-      resetSettings();
+      setImagePath(null);
+      setGridSettings(DEFAULT_GRID_SETTINGS);
     }
 
     return () => {
       setCurrentProject(null);
     };
-  }, [projectId]);
+  }, [projectId, loadProject, setCurrentProject]);
 
   useEffect(() => {
     if (currentProject) {
@@ -60,16 +71,6 @@ const Editor = () => {
     }
   }, [currentProject]);
 
-  const loadProject = async (id) => {
-    setLoading(true);
-    const result = await getProject(id);
-    if (!result.success) {
-      toast.error(result.message);
-      navigate('/dashboard');
-    }
-    setLoading(false);
-  };
-
   const handleImageUpload = async (file) => {
     setLoading(true);
     try {
@@ -80,7 +81,6 @@ const Editor = () => {
       img.crossOrigin = 'anonymous'; // Enable CORS to prevent tainted canvas
       img.onload = () => {
         setImage(img);
-        setImageFile(file);
         toast.success('Image uploaded successfully');
       };
       img.src = resolveAssetUrl(uploadResult.path);
@@ -98,14 +98,7 @@ const Editor = () => {
   };
 
   const resetSettings = () => {
-    setGridSettings({
-      rows: 10,
-      cols: 10,
-      lineColor: '#000000',
-      lineThickness: 2,
-      diagonals: false,
-      gridVisible: true
-    });
+    setGridSettings(DEFAULT_GRID_SETTINGS);
   };
 
   const handleSave = async () => {
