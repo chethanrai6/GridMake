@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap');
+
+:root {
+  --font-body: 'Manrope', 'Segoe UI', sans-serif;
+  --font-display: 'Sora', 'Trebuchet MS', sans-serif;
+
+  --brand: #0f9d8c;
+  --brand-strong: #0d6bb0;
+  --brand-warm: #ff6f3d;
+
+  --text-strong: #122437;
+  --text-muted: #5d6f82;
+
+  --surface: #ffffff;
+  --surface-soft: #fbfdff;
+  --border-soft: rgba(13, 34, 60, 0.12);
+
+  --shadow-soft: 0 10px 26px rgba(13, 34, 60, 0.08);
+  --shadow-md: 0 18px 40px rgba(13, 34, 60, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text-strong);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background:
+    radial-gradient(circle at 14% 9%, rgba(255, 111, 61, 0.22), transparent 30%),
+    radial-gradient(circle at 83% 84%, rgba(15, 157, 140, 0.2), transparent 31%),
+    linear-gradient(165deg, #eef6ff 0%, #f7fbff 36%, #fdf7f1 100%);
+}
+
+code {
+  font-family: 'Cascadia Mono', 'Consolas', 'Courier New', monospace;
+}
+
+a {
+  color: inherit;
+}
+
+.container {
+  width: min(1220px, 100% - 2rem);
+  margin-inline: auto;
+}
+
+.btn {
+  border: 1px solid transparent;
+  border-radius: 0.78rem;
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 0.62rem 0.95rem;
+  min-height: 42px;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease, border-color 180ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--brand-strong), #1d86d3);
+  box-shadow: 0 8px 18px rgba(13, 107, 176, 0.24);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 12px 24px rgba(13, 107, 176, 0.3);
+}
+
+.btn-secondary {
+  color: #fff;
+  background: linear-gradient(135deg, #4f687f, #627f98);
+  box-shadow: 0 8px 18px rgba(79, 104, 127, 0.26);
+}
+
+.btn-danger {
+  color: #fff;
+  background: linear-gradient(135deg, #d74457, #c73a49);
+  box-shadow: 0 8px 18px rgba(199, 58, 73, 0.24);
+}
+
+.btn-outline {
+  color: var(--brand-strong);
+  border-color: rgba(13, 107, 176, 0.34);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.btn-outline:hover {
+  border-color: var(--brand-strong);
+  background: #fff;
+}
+
+.btn-icon {
+  gap: 0.45rem;
+}
+
+.btn-icon svg {
+  font-size: 0.98rem;
+  flex-shrink: 0;
+}
+
+.form-group {
+  margin-bottom: 0.95rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.81rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.form-control,
+input[type='number'] {
+  width: 100%;
+  border: 1px solid rgba(13, 34, 60, 0.16);
+  border-radius: 0.72rem;
+  padding: 0.62rem 0.7rem;
+  font-size: 0.9rem;
+  color: var(--text-strong);
+  background: #fff;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.form-control:focus,
+input[type='number']:focus {
+  outline: none;
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 3px rgba(13, 107, 176, 0.16);
+}
+
+.error-message {
+  color: #b91834;
+  font-size: 0.82rem;
+  margin-top: 0.3rem;
+}
+
+.success-message {
+  color: #0d8c5f;
+  font-size: 0.82rem;
+  margin-top: 0.3rem;
+}
+
+.spinner {
+  border: 3px solid rgba(13, 34, 60, 0.14);
+  border-top-color: var(--brand-strong);
+  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  animation: spin 720ms linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+.hidden {
+  display: none;
+}
