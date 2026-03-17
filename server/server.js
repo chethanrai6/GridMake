@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
 const uploadRoutes = require('./routes/upload');
+const blogRoutes = require('./routes/blog');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -81,6 +82,7 @@ app.use('/uploads', cors({ origin: corsOrigin }), express.static(path.join(__dir
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/blog', blogRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

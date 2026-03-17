@@ -9,17 +9,11 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Simple content validation - checks image dimensions and properties
-// In production, you can integrate with services like:
-// - Google Cloud Vision API
-// - Clarifai API
-// - AWS Rekognition
-// - Custom TensorFlow.js model
+// Image validation - checks image dimensions
 const validateImageContent = async (filePath) => {
     try {
         const metadata = await sharp(filePath).metadata();
         
-        // Check for minimum and maximum image dimensions
         const MIN_WIDTH = 100;
         const MIN_HEIGHT = 100;
         const MAX_WIDTH = 4000;
@@ -39,16 +33,12 @@ const validateImageContent = async (filePath) => {
             };
         }
         
-        // Additional metadata validations
-        if (!metadata.hasAlpha && metadata.format === 'png') {
-            // PNG files should ideally have proper format
-        }
-        
         return { valid: true };
     } catch (error) {
+        console.error('Image validation error:', error);
         return {
             valid: false,
-            reason: 'Image validation failed. The file may be corrupted.'
+            reason: 'Image validation failed. The file may be corrupted or unsupported.'
         };
     }
 };
@@ -119,7 +109,7 @@ const uploadImage = (req, res, next) => {
         }
 
         try {
-            // Validate image content (dimensions, format, NSFW check)
+            // Validate image content (dimensions)
             const validation = await validateImageContent(req.file.path);
             
             if (!validation.valid) {

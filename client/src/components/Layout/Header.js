@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiGrid, FiLayers, FiLogOut, FiLogIn, FiUserPlus } from 'react-icons/fi';
+import { FiGrid, FiLayers, FiLogOut, FiLogIn, FiUserPlus, FiBookOpen } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -34,7 +34,7 @@ const Header = () => {
     );
   }
 
-  // On home page (public), show brand + login/signup nav
+  // On home page (public), show brand + blog + login/signup nav
   if (isHomePage || !user) {
     return (
       <header className="header">
@@ -45,6 +45,9 @@ const Header = () => {
               <span className="header-title">Drawing Grid Maker</span>
             </Link>
             <nav className="header-nav">
+              <Link to="/blog" className="nav-link">
+                <FiBookOpen aria-hidden="true" /> Blog
+              </Link>
               <div className="header-actions">
                 <Link to="/login" className="btn btn-outline btn-icon">
                   <FiLogIn aria-hidden="true" /> Sign In
@@ -72,11 +75,18 @@ const Header = () => {
           </Link>
 
           <nav className="header-nav">
+            <Link to="/blog" className="nav-link">
+              <FiBookOpen aria-hidden="true" /> Blog
+            </Link>
             <span className="header-user" title={user.name}>Welcome, {user.name}</span>
             <div className="header-actions">
               <Link to="/dashboard" className="btn btn-outline btn-icon">
                 <FiGrid aria-hidden="true" />
                 Dashboard
+              </Link>
+              <Link to="/blog/new" className="btn btn-secondary btn-icon">
+                <FiBookOpen aria-hidden="true" />
+                Write
               </Link>
               <button onClick={handleLogout} className="btn btn-outline btn-icon">
                 <FiLogOut aria-hidden="true" />

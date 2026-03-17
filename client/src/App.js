@@ -10,6 +10,9 @@ import Signup from './components/Auth/Signup';
 import Dashboard from './components/Dashboard/Dashboard';
 import Editor from './components/Editor/Editor';
 import HomePage from './components/Home/HomePage';
+import BlogPage from './components/Blog/BlogPage';
+import BlogPost from './components/Blog/BlogPost';
+import BlogEditor from './components/Blog/BlogEditor';
 import './App.css';
 
 function App() {
@@ -24,6 +27,18 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/new" element={
+                  <ProtectedRoute>
+                    <BlogEditor />
+                  </ProtectedRoute>
+                } />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/blog/:id/edit" element={
+                  <ProtectedRoute>
+                    <BlogEditor />
+                  </ProtectedRoute>
+                } />
                 <Route 
                   path="/dashboard" 
                   element={

@@ -1,35 +1,26 @@
 import React, { useRef, useState } from 'react';
 import { FiUploadCloud } from 'react-icons/fi';
-import { toast } from 'react-hot-toast';
-import { uploadService } from '../../services/upload';
 
 const ImageUpload = ({ onImageUpload, loading }) => {
   const fileInputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
 
-  const handleFileSelect = async (file) => {
+  const handleFileSelect = (file) => {
     if (!file) return;
 
-    try {
-      // Perform comprehensive validation
-      const basicValidation = uploadService.validateImage(file);
-      if (!basicValidation.valid) {
-        toast.error(basicValidation.error);
-        return;
-      }
-
-      // Validate dimensions
-      const dimensionValidation = await uploadService.validateImageDimensions(file);
-      if (!dimensionValidation.valid) {
-        toast.error(dimensionValidation.error);
-        return;
-      }
-
-      // File passed all validations, proceed with upload
-      onImageUpload(file);
-    } catch (error) {
-      toast.error(error.message || 'Failed to validate image');
+    // Validate file type
+    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+      alert('Please select a JPEG or PNG image');
+      return;
     }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
+    onImageUpload(file);
   };
 
   const handleDrop = (e) => {
@@ -94,7 +85,7 @@ const ImageUpload = ({ onImageUpload, loading }) => {
               Drop an image here or click to select
             </div>
             <div className="upload-subtext">
-              Supports PNG and JPEG (100x100 to 4000x4000px, max 10MB)
+              Supports PNG and JPEG (max 10MB)
             </div>
           </div>
         )}
