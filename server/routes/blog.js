@@ -10,7 +10,7 @@ const {
   getMyDrafts,
   getCategories
 } = require('../controllers/blogController');
-const { protect } = require('../middleware/auth');
+const protect = require('../middleware/auth');
 
 // Public routes
 router.get('/', getBlogs);

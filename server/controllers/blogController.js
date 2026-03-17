@@ -125,7 +125,7 @@ const getBlogBySlug = async (req, res) => {
 // @access  Private (Admin)
 const createBlog = async (req, res) => {
   try {
-    const { title, excerpt, content, category, tags, featuredImage, seoTitle, seoDescription, seoKeywords } = req.body;
+    const { title, excerpt, content, category, tags, featuredImage, published, featured, seoTitle, seoDescription, seoKeywords } = req.body;
 
     // Validate required fields
     if (!title || !excerpt || !content) {
@@ -135,15 +135,16 @@ const createBlog = async (req, res) => {
       });
     }
 
+    // Generate slug from title
+    const slug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/--+/g, '-');
+
     // Check if slug already exists
-    const slugCheck = await Blog.findOne({
-      slug: title
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/--+/g, '-')
-    });
+    const slugCheck = await Blog.findOne({ slug });
 
     if (slugCheck) {
       return res.status(400).json({
@@ -154,16 +155,20 @@ const createBlog = async (req, res) => {
 
     const blog = await Blog.create({
       title,
+      slug,
       excerpt,
       content,
       author: req.user._id,
       authorName: req.user.name || req.user.email,
       category: category || 'Other',
-      tags: tags || [],
+      tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()) : []),
       featuredImage: featuredImage || null,
+      published: published || false,
+      featured: featured || false,
+      publishedAt: published ? new Date() : null,
       seoTitle: seoTitle || title,
       seoDescription,
-      seoKeywords: seoKeywords || []
+      seoKeywords: Array.isArray(seoKeywords) ? seoKeywords : (seoKeywords ? seoKeywords.split(',').map(k => k.trim()) : [])
     });
 
     res.status(201).json({
