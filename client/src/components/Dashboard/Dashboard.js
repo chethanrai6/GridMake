@@ -4,7 +4,6 @@ import { toast } from 'react-hot-toast';
 import {
   FiPlusCircle,
   FiGrid,
-  FiArrowRight,
   FiZap,
   FiUploadCloud,
   FiCheckCircle,
