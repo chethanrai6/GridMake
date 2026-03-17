@@ -5,7 +5,11 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [drawingMode, setDrawingMode] = useState('pencil');
+  const [drawColor, setDrawColor] = useState('#000000');
+  const [brushSize, setBrushSize] = useState(3);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const [drawingData, setDrawingData] = useState(null);
 
   // Initialize canvas
   useEffect(() => {
@@ -77,7 +81,7 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
       context.beginPath();
       context.moveTo(x, y);
     },
-    [drawingMode, drawColor, brushSize, isVisible]
+    [drawingMode, drawColor, brushSize, isVisible, drawingData]
   );
 
   const draw = (e) => {
