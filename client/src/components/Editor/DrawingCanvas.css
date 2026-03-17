@@ -1,0 +1,151 @@
+.drawing-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  cursor: crosshair;
+  display: block;
+  background: transparent;
+}
+
+.drawing-toolbar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  box-shadow: 0 10px 32px rgba(13, 34, 60, 0.12);
+  border: 1px solid rgba(13, 34, 60, 0.08);
+  flex-wrap: wrap;
+  max-width: 95vw;
+}
+
+.drawing-tool-group {
+  display: flex;
+  gap: 8px;
+  padding-right: 12px;
+  border-right: 1px solid rgba(13, 34, 60, 0.12);
+}
+
+.drawing-tool {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(13, 34, 60, 0.08);
+  color: var(--text-strong);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 160ms ease;
+}
+
+.drawing-tool:hover {
+  background: rgba(13, 34, 60, 0.14);
+  transform: translateY(-2px);
+}
+
+.drawing-tool.active {
+  background: var(--brand-strong);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(13, 107, 176, 0.3);
+}
+
+.drawing-tool.danger:hover {
+  background: #b91834;
+  color: #fff;
+}
+
+.drawing-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.drawing-options label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  margin: 0;
+}
+
+.drawing-options label span {
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-left: 0.3rem;
+}
+
+.color-picker {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(13, 34, 60, 0.12);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.size-slider {
+  width: 100px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(13, 34, 60, 0.08);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand-strong);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(13, 107, 176, 0.25);
+}
+
+.size-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand-strong);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(13, 107, 176, 0.25);
+}
+
+@media (max-width: 768px) {
+  .drawing-toolbar {
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    transform: none;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .drawing-tool-group {
+    padding-right: 10px;
+  }
+
+  .size-slider {
+    width: 80px;
+  }
+
+  .drawing-options label {
+    display: none;
+  }
+}

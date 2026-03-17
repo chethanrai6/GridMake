@@ -1,12 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { FiPenTool, FiGrid } from 'react-icons/fi';
+import { MdCalculate } from 'react-icons/md';
 import { useProject } from '../../contexts/ProjectContext';
 import { resolveAssetUrl } from '../../services/api';
 import { uploadService } from '../../services/upload';
 import GridCanvas from './GridCanvas';
 import GridControls from './GridControls';
 import ImageUpload from './ImageUpload';
+import GridCalculator from './GridCalculator';
+import DrawingCanvas from './DrawingCanvas';
 
 const DEFAULT_GRID_SETTINGS = {
   rows: 10,
@@ -20,7 +24,19 @@ const DEFAULT_GRID_SETTINGS = {
 const Editor = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { currentProject, createProject, updateProject, getProject, setCurrentProject } = useProject();
+  const { 
+    currentProject, 
+    createProject, 
+    updateProject, 
+    getProject, 
+    setCurrentProject,
+    initializeNewProject,
+    updateGridSettings,
+    undo,
+    redo,
+    canUndo,
+    canRedo
+  } = useProject();
   const canvasRef = useRef(null);
 
   const [image, setImage] = useState(null);
@@ -28,6 +44,13 @@ const Editor = () => {
   const [gridSettings, setGridSettings] = useState(DEFAULT_GRID_SETTINGS);
   const [projectName, setProjectName] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // New features states
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [showReference, setShowReference] = useState(false);
+  const [referenceOpacity, setReferenceOpacity] = useState(0.5);
+  const [imageRotation, setImageRotation] = useState(0);
+  const [drawingMode, setDrawingMode] = useState(false);
 
   const loadProject = useCallback(async (id) => {
     setLoading(true);
@@ -43,8 +66,8 @@ const Editor = () => {
     if (projectId) {
       loadProject(projectId);
     } else {
-      // New project
-      setCurrentProject(null);
+      // New project - initialize with default settings
+      initializeNewProject(DEFAULT_GRID_SETTINGS);
       setProjectName('');
       setImage(null);
       setImagePath(null);
@@ -54,7 +77,7 @@ const Editor = () => {
     return () => {
       setCurrentProject(null);
     };
-  }, [projectId, loadProject, setCurrentProject]);
+  }, [projectId, loadProject, setCurrentProject, initializeNewProject]);
 
   useEffect(() => {
     if (currentProject) {
@@ -93,9 +116,43 @@ const Editor = () => {
     }
   };
 
-  const handleGridChange = (newSettings) => {
-    setGridSettings(newSettings);
-  };
+  const handleGridChange = useCallback((newSettings) => {
+    updateGridSettings(newSettings);
+  }, [updateGridSettings]);
+
+  const handleCalculatorApply = useCallback((calculatedGrid) => {
+    const newSettings = {
+      ...gridSettings,
+      ...calculatedGrid
+    };
+    handleGridChange(newSettings);
+    setShowCalculator(false);
+    toast.success('Grid settings applied');
+  }, [gridSettings, handleGridChange]);
+
+  const handleUndo = useCallback(() => {
+    undo();
+  }, [undo]);
+
+  const handleRedo = useCallback(() => {
+    redo();
+  }, [redo]);
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault();
+        if (canUndo) handleUndo();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
+        e.preventDefault();
+        if (canRedo) handleRedo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [canUndo, canRedo, handleUndo, handleRedo]);
 
   const resetSettings = () => {
     setGridSettings(DEFAULT_GRID_SETTINGS);
@@ -232,14 +289,86 @@ const Editor = () => {
         <ImageUpload onImageUpload={handleImageUpload} loading={loading} />
 
         {image && (
-          <GridControls
-            settings={gridSettings}
-            onChange={handleGridChange}
-            onReset={resetSettings}
-            onSave={handleSave}
-            onExport={handleExport}
-            loading={loading}
-          />
+          <>
+            <div className="control-group">
+              <button
+                className="btn btn-primary btn-icon"
+                onClick={() => setShowCalculator(true)}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <MdCalculate />
+                Calculate Optimal Grid
+              </button>
+            </div>
+
+            <div className="control-group">
+              <h3>Reference Tools</h3>
+              
+              <div className="form-group">
+                <label className="form-label">Image Opacity</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={referenceOpacity}
+                  onChange={(e) => setReferenceOpacity(parseFloat(e.target.value))}
+                  className="form-range"
+                />
+                <span className="range-value">{Math.round(referenceOpacity * 100)}%</span>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Image Rotation</label>
+                <input
+                  type="number"
+                  min="-360"
+                  max="360"
+                  step="5"
+                  value={imageRotation}
+                  onChange={(e) => setImageRotation(parseInt(e.target.value))}
+                  className="form-control"
+                  placeholder="Rotation angle (°)"
+                />
+                <span className="range-hint">{imageRotation}°</span>
+              </div>
+
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  setReferenceOpacity(1);
+                  setImageRotation(0);
+                }}
+                style={{ width: '100%' }}
+              >
+                Reset Reference Tools
+              </button>
+            </div>
+
+            <div className="control-group">
+              <button
+                className={`btn ${drawingMode ? 'btn-primary' : 'btn-secondary'} btn-icon`}
+                onClick={() => setDrawingMode(!drawingMode)}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <FiPenTool />
+                {drawingMode ? 'Exit Drawing Mode' : 'Enter Drawing Mode'}
+              </button>
+            </div>
+            
+            <GridControls
+              settings={gridSettings}
+              onChange={handleGridChange}
+              onReset={resetSettings}
+              onSave={handleSave}
+              onExport={handleExport}
+              loading={loading}
+              onUndo={handleUndo}
+              onRedo={handleRedo}
+              canUndo={canUndo}
+              canRedo={canRedo}
+            />
+          </>
         )}
       </div>
 
@@ -250,7 +379,16 @@ const Editor = () => {
               ref={canvasRef}
               image={image}
               gridSettings={gridSettings}
+              referenceOpacity={referenceOpacity}
+              imageRotation={imageRotation}
             />
+            {drawingMode && (
+              <DrawingCanvas
+                canvasWidth={image.width}
+                canvasHeight={image.height}
+                isVisible={drawingMode}
+              />
+            )}
           </div>
         ) : (
           <div className="empty-state">
@@ -258,7 +396,47 @@ const Editor = () => {
             <p>Select an image from the sidebar to begin creating your custom grid</p>
           </div>
         )}
+        
+        {drawingMode && (
+          <div style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 500,
+            background: 'white',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center'
+          }}>
+            <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 500 }}>Drawing Mode Active</span>
+            <button
+              onClick={() => setDrawingMode(false)}
+              style={{
+                padding: '8px 16px',
+                background: '#e74c3c',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 500,
+                fontSize: '0.9rem'
+              }}
+            >
+              Exit Drawing Mode
+            </button>
+          </div>
+        )}
       </div>
+
+      <GridCalculator
+        isOpen={showCalculator}
+        onClose={() => setShowCalculator(false)}
+        onApply={handleCalculatorApply}
+      />
     </div>
   );
 };

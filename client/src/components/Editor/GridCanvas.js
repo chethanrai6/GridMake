@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useImperativeHandle, useRef, forwardRef } from 'react';
 
-const GridCanvas = forwardRef(({ image, gridSettings }, ref) => {
+const GridCanvas = forwardRef(({ image, gridSettings, referenceOpacity = 1, imageRotation = 0 }, ref) => {
   const canvasRef = useRef(null);
 
   // Expose export function to parent component
@@ -94,7 +94,27 @@ const GridCanvas = forwardRef(({ image, gridSettings }, ref) => {
 
     // Draw the uploaded image if it exists
     if (image) {
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      // Save canvas state
+      ctx.save();
+      
+      // Apply opacity
+      ctx.globalAlpha = referenceOpacity;
+      
+      // Apply rotation if needed
+      if (imageRotation !== 0) {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        ctx.translate(centerX, centerY);
+        ctx.rotate((imageRotation * Math.PI) / 180);
+        // Adjust position to center the rotated image
+        ctx.drawImage(image, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+      } else {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      }
+      
+      // Reset global alpha and restore state
+      ctx.globalAlpha = 1;
+      ctx.restore();
     }
 
     // Check if the grid should be visible
@@ -104,7 +124,7 @@ const GridCanvas = forwardRef(({ image, gridSettings }, ref) => {
 
     // Draw grid
     drawGrid(ctx, canvas.width, canvas.height, gridSettings);
-  }, [drawGrid, image, gridSettings]);
+  }, [drawGrid, image, gridSettings, referenceOpacity, imageRotation]);
 
   useEffect(() => {
     drawCanvas();

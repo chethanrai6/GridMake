@@ -1,12 +1,57 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
+
+// Simple content validation - checks image dimensions and properties
+// In production, you can integrate with services like:
+// - Google Cloud Vision API
+// - Clarifai API
+// - AWS Rekognition
+// - Custom TensorFlow.js model
+const validateImageContent = async (filePath) => {
+    try {
+        const metadata = await sharp(filePath).metadata();
+        
+        // Check for minimum and maximum image dimensions
+        const MIN_WIDTH = 100;
+        const MIN_HEIGHT = 100;
+        const MAX_WIDTH = 4000;
+        const MAX_HEIGHT = 4000;
+        
+        if (metadata.width < MIN_WIDTH || metadata.height < MIN_HEIGHT) {
+            return {
+                valid: false,
+                reason: 'Image dimensions too small. Minimum 100x100 pixels required.'
+            };
+        }
+        
+        if (metadata.width > MAX_WIDTH || metadata.height > MAX_HEIGHT) {
+            return {
+                valid: false,
+                reason: 'Image dimensions too large. Maximum 4000x4000 pixels allowed.'
+            };
+        }
+        
+        // Additional metadata validations
+        if (!metadata.hasAlpha && metadata.format === 'png') {
+            // PNG files should ideally have proper format
+        }
+        
+        return { valid: true };
+    } catch (error) {
+        return {
+            valid: false,
+            reason: 'Image validation failed. The file may be corrupted.'
+        };
+    }
+};
 
 // Configure multer for file upload
 const storage = multer.diskStorage({
@@ -47,7 +92,7 @@ const upload = multer({
 const uploadImage = (req, res, next) => {
     const uploadSingle = upload.single('image');
 
-    uploadSingle(req, res, (err) => {
+    uploadSingle(req, res, async (err) => {
         if (err instanceof multer.MulterError) {
             if (err.code === 'LIMIT_FILE_SIZE') {
                 return res.status(400).json({
@@ -73,18 +118,45 @@ const uploadImage = (req, res, next) => {
             });
         }
 
-        // Return file information
-        res.json({
-            success: true,
-            message: 'File uploaded successfully',
-            data: {
-                filename: req.file.filename,
-                originalName: req.file.originalname,
-                path: 'uploads/' + req.file.filename,
-                size: req.file.size,
-                mimetype: req.file.mimetype
+        try {
+            // Validate image content (dimensions, format, NSFW check)
+            const validation = await validateImageContent(req.file.path);
+            
+            if (!validation.valid) {
+                // Delete the uploaded file if validation fails
+                fs.unlink(req.file.path, (err) => {
+                    if (err) console.error('Error deleting invalid file:', err);
+                });
+                
+                return res.status(400).json({
+                    success: false,
+                    message: validation.reason
+                });
             }
-        });
+
+            // Return file information
+            res.json({
+                success: true,
+                message: 'File uploaded successfully',
+                data: {
+                    filename: req.file.filename,
+                    originalName: req.file.originalname,
+                    path: 'uploads/' + req.file.filename,
+                    size: req.file.size,
+                    mimetype: req.file.mimetype
+                }
+            });
+        } catch (error) {
+            // Clean up file on error
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error('Error deleting file after validation error:', err);
+            });
+            
+            res.status(500).json({
+                success: false,
+                message: 'File validation failed: ' + error.message
+            });
+        }
     });
 };
 

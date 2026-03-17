@@ -1,7 +1,7 @@
 import React from 'react';
-import { FiDownload, FiRefreshCcw, FiSave, FiSettings, FiSliders } from 'react-icons/fi';
+import { FiDownload, FiRefreshCcw, FiSave, FiSettings, FiSliders, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 
-const GridControls = ({ settings, onChange, onReset, onSave, onExport, loading }) => {
+const GridControls = ({ settings, onChange, onReset, onSave, onExport, loading, onUndo, onRedo, canUndo, canRedo }) => {
   const handleChange = (key, value) => {
     onChange({
       ...settings,
@@ -126,6 +126,28 @@ const GridControls = ({ settings, onChange, onReset, onSave, onExport, loading }
         </h3>
 
         <div className="action-buttons">
+          <div className="undo-redo-row">
+            <button 
+              onClick={onUndo} 
+              className="btn btn-secondary btn-icon btn-sm"
+              disabled={loading || !canUndo}
+              title="Undo (Ctrl+Z)"
+            >
+              <FiArrowLeft aria-hidden="true" />
+              Undo
+            </button>
+
+            <button 
+              onClick={onRedo} 
+              className="btn btn-secondary btn-icon btn-sm"
+              disabled={loading || !canRedo}
+              title="Redo (Ctrl+Y)"
+            >
+              <FiArrowRight aria-hidden="true" />
+              Redo
+            </button>
+          </div>
+
           <button 
             onClick={onReset} 
             className="btn btn-secondary btn-icon"

@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState, useRef } from 'react';
 import { projectService } from '../services/projects';
 
 const ProjectContext = createContext();
@@ -15,6 +15,10 @@ export const ProjectProvider = ({ children }) => {
   const [projects, setProjects] = useState([]);
   const [currentProject, setCurrentProject] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // Simple undo/redo using a useRef to avoid closure issues
+  const historyRef = useRef([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -79,6 +83,11 @@ export const ProjectProvider = ({ children }) => {
     try {
       const project = await projectService.getProject(projectId);
       setCurrentProject(project);
+      // Initialize history when loading a project
+      if (project?.gridSettings) {
+        historyRef.current = [JSON.parse(JSON.stringify(project.gridSettings))];
+        setHistoryIndex(0);
+      }
       return { success: true, project };
     } catch (error) {
       return { 
@@ -86,6 +95,78 @@ export const ProjectProvider = ({ children }) => {
         message: error.response?.data?.message || 'Failed to load project' 
       };
     }
+  }, []);
+
+  // Update grid settings with history tracking
+  const updateGridSettings = (newSettings) => {
+    setCurrentProject(prev => {
+      if (!prev) return prev;
+      
+      const updated = {
+        ...prev,
+        gridSettings: { ...prev.gridSettings, ...newSettings }
+      };
+
+      // Update history using ref to avoid closure issues
+      historyRef.current = historyRef.current.slice(0, historyIndex + 1);
+      historyRef.current.push(JSON.parse(JSON.stringify(updated.gridSettings)));
+      setHistoryIndex(historyRef.current.length - 1);
+
+      return updated;
+    });
+  };
+
+  // Undo function
+  const undo = () => {
+    if (historyIndex <= 0) return;
+    
+    const newIndex = historyIndex - 1;
+    const previousSettings = historyRef.current[newIndex];
+    
+    setCurrentProject(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        gridSettings: JSON.parse(JSON.stringify(previousSettings))
+      };
+    });
+    
+    setHistoryIndex(newIndex);
+  };
+
+  // Redo function
+  const redo = () => {
+    if (historyIndex >= historyRef.current.length - 1) return;
+    
+    const newIndex = historyIndex + 1;
+    const nextSettings = historyRef.current[newIndex];
+    
+    setCurrentProject(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        gridSettings: JSON.parse(JSON.stringify(nextSettings))
+      };
+    });
+    
+    setHistoryIndex(newIndex);
+  };
+
+  // Check if undo/redo is available
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex >= 0 && historyIndex < historyRef.current.length - 1;
+
+  // Initialize a new project with default grid settings
+  const initializeNewProject = useCallback((defaultSettings) => {
+    const newProj = {
+      _id: null,
+      name: '',
+      imagePath: null,
+      gridSettings: defaultSettings
+    };
+    setCurrentProject(newProj);
+    historyRef.current = [JSON.parse(JSON.stringify(defaultSettings))];
+    setHistoryIndex(0);
   }, []);
 
   const value = useMemo(() => ({
@@ -97,7 +178,14 @@ export const ProjectProvider = ({ children }) => {
     updateProject,
     deleteProject,
     getProject,
-    setCurrentProject
+    setCurrentProject,
+    initializeNewProject,
+    // New undo/redo methods
+    updateGridSettings,
+    undo,
+    redo,
+    canUndo,
+    canRedo
   }), [
     projects,
     currentProject,
@@ -106,7 +194,10 @@ export const ProjectProvider = ({ children }) => {
     createProject,
     updateProject,
     deleteProject,
-    getProject
+    getProject,
+    initializeNewProject,
+    canUndo,
+    canRedo
   ]);
 
   return (
