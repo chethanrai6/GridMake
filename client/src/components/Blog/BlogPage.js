@@ -19,7 +19,7 @@ const BlogPage = () => {
   useEffect(() => {
     fetchFeaturedBlogs();
     fetchCategories();
-  }, []);
+  }, [fetchFeaturedBlogs, fetchCategories]);
 
   const fetchFeaturedBlogs = useCallback(async () => {
     try {
@@ -54,14 +54,14 @@ const BlogPage = () => {
     fetchBlogs();
   }, [fetchBlogs]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await api.get('/blog/categories');
       setCategories(response.data.data);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
     }
-  };
+  }, []);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);

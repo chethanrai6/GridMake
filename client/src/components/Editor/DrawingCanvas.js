@@ -5,9 +5,6 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [drawingMode, setDrawingMode] = useState('pencil');
-  const [drawColor, setDrawColor] = useState('#000000');
-  const [brushSize, setBrushSize] = useState(3);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [drawingData, setDrawingData] = useState(null);
 
@@ -31,7 +28,7 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
     if (drawingData) {
       redrawCanvas(context, canvas.width, canvas.height, drawingData);
     }
-  }, [drawingMode, canvasWidth, canvasHeight, drawingData]);
+  }, [canvasWidth, canvasHeight, drawingData]);
 
   const redrawCanvas = (ctx, width, height, data) => {
     ctx.clearRect(0, 0, width, height);
@@ -70,18 +67,11 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
       setStartPos({ x, y });
       setIsDrawing(true);
 
-      if (drawingMode === 'line') {
-        // Don't start drawing yet, wait for mouse up
-        return;
-      }
-
       const context = contextRef.current;
-      context.strokeStyle = drawingMode === 'eraser' ? 'rgba(0,0,0,0)' : drawColor;
-      context.lineWidth = brushSize;
       context.beginPath();
       context.moveTo(x, y);
     },
-    [drawingMode, drawColor, brushSize, isVisible, drawingData]
+    [isVisible]
   );
 
   const draw = (e) => {
@@ -92,18 +82,9 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (drawingMode === 'line') {
-      // Preview line - don't draw yet
-      return;
-    }
-
     const context = contextRef.current;
-    if (drawingMode === 'eraser') {
-      context.clearRect(x - brushSize / 2, y - brushSize / 2, brushSize, brushSize);
-    } else {
-      context.lineTo(x, y);
-      context.stroke();
-    }
+    context.lineTo(x, y);
+    context.stroke();
   };
 
   const stopDrawing = () => {
@@ -112,20 +93,6 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
     const canvas = canvasRef.current;
     const context = contextRef.current;
 
-    if (drawingMode === 'line') {
-      // Draw line from start to current position
-      const rect = canvas.getBoundingClientRect();
-      const endX = startPos.x; // Use the stored startPos
-      const endY = startPos.y;
-
-      context.strokeStyle = drawColor;
-      context.lineWidth = brushSize;
-      context.beginPath();
-      context.moveTo(startPos.x, startPos.y);
-      context.lineTo(endX, endY);
-      context.stroke();
-    }
-
     context.closePath();
     setIsDrawing(false);
 
@@ -133,26 +100,8 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     setDrawingData({
       imageData,
-      strokes: [] // We'd need to track strokes separately for full functionality
+      strokes: []
     });
-  };
-
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    const context = contextRef.current;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    setDrawingData(null);
-  };
-
-  const downloadDrawing = () => {
-    const canvas = canvasRef.current;
-    const dataURL = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = 'drawing.png';
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   if (!isVisible) return null;

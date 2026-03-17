@@ -98,7 +98,7 @@ export const ProjectProvider = ({ children }) => {
   }, []);
 
   // Update grid settings with history tracking
-  const updateGridSettings = (newSettings) => {
+  const updateGridSettings = useCallback((newSettings) => {
     setCurrentProject(prev => {
       if (!prev) return prev;
       
@@ -114,10 +114,10 @@ export const ProjectProvider = ({ children }) => {
 
       return updated;
     });
-  };
+  }, [historyIndex]);
 
   // Undo function
-  const undo = () => {
+  const undo = useCallback(() => {
     if (historyIndex <= 0) return;
     
     const newIndex = historyIndex - 1;
@@ -132,10 +132,10 @@ export const ProjectProvider = ({ children }) => {
     });
     
     setHistoryIndex(newIndex);
-  };
+  }, [historyIndex]);
 
   // Redo function
-  const redo = () => {
+  const redo = useCallback(() => {
     if (historyIndex >= historyRef.current.length - 1) return;
     
     const newIndex = historyIndex + 1;
@@ -150,7 +150,7 @@ export const ProjectProvider = ({ children }) => {
     });
     
     setHistoryIndex(newIndex);
-  };
+  }, [historyIndex]);
 
   // Check if undo/redo is available
   const canUndo = historyIndex > 0;
