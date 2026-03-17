@@ -5,7 +5,6 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [drawingData, setDrawingData] = useState(null);
 
   // Initialize canvas
@@ -64,7 +63,6 @@ const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      setStartPos({ x, y });
       setIsDrawing(true);
 
       const context = contextRef.current;

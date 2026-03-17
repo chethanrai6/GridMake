@@ -16,11 +16,6 @@ const BlogPage = () => {
   const [pagination, setPagination] = useState({});
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchFeaturedBlogs();
-    fetchCategories();
-  }, [fetchFeaturedBlogs, fetchCategories]);
-
   const fetchFeaturedBlogs = useCallback(async () => {
     try {
       const response = await api.get('/blog/featured/posts');
@@ -50,10 +45,6 @@ const BlogPage = () => {
     }
   }, [search, category, page]);
 
-  useEffect(() => {
-    fetchBlogs();
-  }, [fetchBlogs]);
-
   const fetchCategories = useCallback(async () => {
     try {
       const response = await api.get('/blog/categories');
@@ -62,6 +53,15 @@ const BlogPage = () => {
       console.error('Failed to fetch categories:', error);
     }
   }, []);
+
+  useEffect(() => {
+    fetchFeaturedBlogs();
+    fetchCategories();
+  }, [fetchFeaturedBlogs, fetchCategories]);
+
+  useEffect(() => {
+    fetchBlogs();
+  }, [fetchBlogs]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
