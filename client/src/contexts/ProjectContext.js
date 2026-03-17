@@ -196,6 +196,9 @@ export const ProjectProvider = ({ children }) => {
     deleteProject,
     getProject,
     initializeNewProject,
+    updateGridSettings,
+    undo,
+    redo,
     canUndo,
     canRedo
   ]);

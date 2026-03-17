@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { FiPenTool, FiGrid } from 'react-icons/fi';
+import { FiPenTool } from 'react-icons/fi';
 import { MdCalculate } from 'react-icons/md';
 import { useProject } from '../../contexts/ProjectContext';
 import { resolveAssetUrl } from '../../services/api';
@@ -48,7 +48,6 @@ const Editor = () => {
   
   // New features states
   const [showCalculator, setShowCalculator] = useState(false);
-  const [showReference, setShowReference] = useState(false);
   const [referenceOpacity, setReferenceOpacity] = useState(0.5);
   const [imageRotation, setImageRotation] = useState(0);
   const [drawingMode, setDrawingMode] = useState(false);

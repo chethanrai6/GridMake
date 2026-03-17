@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { FiSearch, FiFilter } from 'react-icons/fi';
@@ -21,11 +21,7 @@ const BlogPage = () => {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    fetchBlogs();
-  }, [search, category, page]);
-
-  const fetchFeaturedBlogs = async () => {
+  const fetchBlogs = useCallback(async () => {
     try {
       const response = await api.get('/blog/featured/posts');
       setFeatured(response.data.data);
@@ -52,7 +48,11 @@ const BlogPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, category, page]);
+
+  useEffect(() => {
+    fetchBlogs();
+  }, [fetchBlogs]);
 
   const fetchCategories = async () => {
     try {

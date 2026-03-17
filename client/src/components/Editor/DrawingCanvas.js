@@ -1,17 +1,11 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { FiPenTool, FiEdit, FiTrash2 } from 'react-icons/fi';
-import { MdClear } from 'react-icons/md';
 import './DrawingCanvas.css';
 
 const DrawingCanvas = ({ canvasWidth = 800, canvasHeight = 600, isVisible = true }) => {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [drawingMode, setDrawingMode] = useState('pencil'); // pencil, eraser, line
-  const [drawColor, setDrawColor] = useState('#000000');
-  const [brushSize, setBrushSize] = useState(3);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const [drawingData, setDrawingData] = useState(null);
 
   // Initialize canvas
   useEffect(() => {

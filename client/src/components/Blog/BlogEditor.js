@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { FiSave, FiX, FiUpload, FiImage } from 'react-icons/fi';
@@ -31,13 +31,7 @@ const BlogEditor = () => {
 
   const categories = ['Tips', 'Tutorial', 'Feature', 'Update', 'Design', 'Other'];
 
-  useEffect(() => {
-    if (id) {
-      fetchPost();
-    }
-  }, [id]);
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     try {
       const response = await api.get(`/blog/${id}`);
       const post = response.data.data;
@@ -60,7 +54,13 @@ const BlogEditor = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    if (id) {
+      fetchPost();
+    }
+  }, [id, fetchPost]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
