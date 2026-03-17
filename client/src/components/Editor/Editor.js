@@ -18,7 +18,8 @@ const DEFAULT_GRID_SETTINGS = {
   lineColor: '#000000',
   lineThickness: 2,
   diagonals: false,
-  gridVisible: true
+  gridVisible: true,
+  showCellNames: true
 };
 
 const Editor = () => {

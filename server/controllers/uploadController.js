@@ -150,6 +150,82 @@ const uploadImage = (req, res, next) => {
     });
 };
 
+// @desc    Upload blog image (featured or in-content)
+// @route   POST /api/upload/blog
+// @access  Private
+const uploadBlogImage = (req, res, next) => {
+    const uploadSingle = upload.single('blogImage');
+
+    uploadSingle(req, res, async (err) => {
+        if (err instanceof multer.MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'File size too large. Maximum size is 10MB.'
+                });
+            }
+            return res.status(400).json({
+                success: false,
+                message: 'File upload error: ' + err.message
+            });
+        } else if (err) {
+            return res.status(400).json({
+                success: false,
+                message: err.message
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'No file uploaded'
+            });
+        }
+
+        try {
+            // Validate image content (dimensions)
+            const validation = await validateImageContent(req.file.path);
+            
+            if (!validation.valid) {
+                // Delete the uploaded file if validation fails
+                fs.unlink(req.file.path, (err) => {
+                    if (err) console.error('Error deleting invalid file:', err);
+                });
+                
+                return res.status(400).json({
+                    success: false,
+                    message: validation.reason
+                });
+            }
+
+            // Return file information for blog
+            res.json({
+                success: true,
+                message: 'Blog image uploaded successfully',
+                data: {
+                    filename: req.file.filename,
+                    originalName: req.file.originalname,
+                    url: '/uploads/' + req.file.filename,
+                    path: 'uploads/' + req.file.filename,
+                    size: req.file.size,
+                    mimetype: req.file.mimetype
+                }
+            });
+        } catch (error) {
+            // Clean up file on error
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error('Error deleting file after validation error:', err);
+            });
+            
+            res.status(500).json({
+                success: false,
+                message: 'File validation failed: ' + error.message
+            });
+        }
+    });
+};
+
 module.exports = {
-    uploadImage
+    uploadImage,
+    uploadBlogImage
 };

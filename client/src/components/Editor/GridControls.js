@@ -117,6 +117,16 @@ const GridControls = ({ settings, onChange, onReset, onSave, onExport, loading, 
           />
           <label htmlFor="diagonalLines">Diagonal Lines</label>
         </div>
+
+        <div className="checkbox-control">
+          <input
+            type="checkbox"
+            id="showCellNames"
+            checked={settings.showCellNames !== false}
+            onChange={(e) => handleChange('showCellNames', e.target.checked)}
+          />
+          <label htmlFor="showCellNames">Show Cell Names</label>
+        </div>
       </div>
 
       <div className="control-group">

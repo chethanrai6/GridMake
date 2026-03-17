@@ -38,6 +38,7 @@ const GridCanvas = forwardRef(({ image, gridSettings, referenceOpacity = 1, imag
     const lineThickness = settings.lineThickness;
     const lineColor = settings.lineColor;
     const showDiagonals = settings.diagonals;
+    const showCellNames = settings.showCellNames !== false; // Default to true
 
     const cellWidth = width / numCols;
     const cellHeight = height / numRows;
@@ -71,6 +72,28 @@ const GridCanvas = forwardRef(({ image, gridSettings, referenceOpacity = 1, imag
     }
 
     ctx.stroke(); // Render all the lines at once
+
+    // Draw cell names if enabled
+    if (showCellNames) {
+      ctx.font = `bold ${Math.max(12, cellHeight * 0.18)}px Arial`;
+      ctx.fillStyle = lineColor;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+
+      for (let row = 0; row < numRows; row++) {
+        for (let col = 0; col < numCols; col++) {
+          // Generate cell name (A1, B2, C3, etc.)
+          const colLetter = String.fromCharCode(65 + (col % 26));
+          const cellName = colLetter + (row + 1);
+          
+          // Calculate position (top-left corner with padding)
+          const x = col * cellWidth + 4;
+          const y = row * cellHeight + 4;
+          
+          ctx.fillText(cellName, x, y);
+        }
+      }
+    }
   }, []);
 
   const drawCanvas = useCallback(() => {

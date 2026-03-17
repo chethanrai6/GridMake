@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { FiSave, FiX } from 'react-icons/fi';
+import { FiSave, FiX, FiUpload, FiImage } from 'react-icons/fi';
 import api from '../../services/api';
 import './BlogEditor.css';
 
@@ -10,6 +10,11 @@ const BlogEditor = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(!!id);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const contentTextareaRef = useRef(null);
+  const featuredImageInputRef = useRef(null);
+  const contentImageInputRef = useRef(null);
+
   const [form, setForm] = useState({
     title: '',
     excerpt: '',
@@ -63,6 +68,86 @@ const BlogEditor = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  const handleFeaturedImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('blogImage', file);
+
+      const response = await api.post('/upload/blog', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (response.data.success) {
+        setForm(prev => ({
+          ...prev,
+          featuredImage: response.data.data.url
+        }));
+        toast.success('Featured image uploaded successfully');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to upload featured image');
+    } finally {
+      setUploading(false);
+      if (featuredImageInputRef.current) {
+        featuredImageInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleContentImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('blogImage', file);
+
+      const response = await api.post('/upload/blog', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (response.data.success) {
+        // Insert markdown image syntax at cursor position
+        const imageMarkdown = `![${file.name}](${response.data.data.url})`;
+        const textarea = contentTextareaRef.current;
+        
+        if (textarea) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const newContent = 
+            form.content.substring(0, start) + 
+            '\n' + imageMarkdown + '\n' + 
+            form.content.substring(end);
+          
+          setForm(prev => ({
+            ...prev,
+            content: newContent
+          }));
+          
+          // Reset cursor position after update
+          setTimeout(() => {
+            textarea.focus();
+            textarea.setSelectionRange(start + imageMarkdown.length + 2, start + imageMarkdown.length + 2);
+          }, 0);
+        }
+        
+        toast.success('Image inserted into content');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to upload image');
+    } finally {
+      setUploading(false);
+      if (contentImageInputRef.current) {
+        contentImageInputRef.current.value = '';
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -138,17 +223,38 @@ const BlogEditor = () => {
           />
         </div>
 
-        {/* Content */}
+        {/* Content with Image Upload */}
         <div className="form-group">
-          <label>Content</label>
+          <div className="label-with-button">
+            <label>Content</label>
+            <button
+              type="button"
+              className="btn-insert-image"
+              disabled={uploading}
+              onClick={() => contentImageInputRef.current?.click()}
+            >
+              <FiImage /> {uploading ? 'Uploading...' : 'Insert Image'}
+            </button>
+            <input
+              ref={contentImageInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleContentImageUpload}
+              style={{ display: 'none' }}
+            />
+          </div>
           <textarea
+            ref={contentTextareaRef}
             name="content"
             value={form.content}
             onChange={handleChange}
-            placeholder="Full blog post content"
+            placeholder="Full blog post content (Use 'Insert Image' button to add images)"
             rows="15"
             required
           />
+          <small style={{ color: '#666', marginTop: '5px' }}>
+            💡 Tip: Click 'Insert Image' to upload images. They'll be inserted as markdown: ![alt text](image-url)
+          </small>
         </div>
 
         {/* Category & Tags */}
@@ -180,14 +286,39 @@ const BlogEditor = () => {
 
         {/* Featured Image */}
         <div className="form-group">
-          <label>Featured Image URL</label>
-          <input
-            type="url"
-            name="featuredImage"
-            value={form.featuredImage}
-            onChange={handleChange}
-            placeholder="https://example.com/image.jpg"
-          />
+          <label>Featured Image</label>
+          <div className="featured-image-upload">
+            <div className="image-input-group">
+              <input
+                ref={featuredImageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFeaturedImageUpload}
+                style={{ display: 'none' }}
+              />
+              <button
+                type="button"
+                className="btn-upload"
+                disabled={uploading}
+                onClick={() => featuredImageInputRef.current?.click()}
+              >
+                <FiUpload /> {uploading ? 'Uploading...' : 'Upload Image'}
+              </button>
+              <span className="or-text">or paste URL:</span>
+              <input
+                type="url"
+                name="featuredImage"
+                value={form.featuredImage}
+                onChange={handleChange}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            {form.featuredImage && (
+              <div className="featured-image-preview">
+                <img src={form.featuredImage} alt="Featured" style={{ maxWidth: '200px', borderRadius: '4px' }} />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* SEO Fields */}

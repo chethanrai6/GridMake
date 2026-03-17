@@ -45,7 +45,7 @@ const Header = () => {
               <span className="header-title">Drawing Grid Maker</span>
             </Link>
             <nav className="header-nav">
-              <Link to="/blog" className="nav-link">
+              <Link to="/blog" className="btn btn-outline btn-icon">
                 <FiBookOpen aria-hidden="true" /> Blog
               </Link>
               <div className="header-actions">
@@ -75,7 +75,7 @@ const Header = () => {
           </Link>
 
           <nav className="header-nav">
-            <Link to="/blog" className="nav-link">
+            <Link to="/blog" className="btn btn-outline btn-icon">
               <FiBookOpen aria-hidden="true" /> Blog
             </Link>
             <span className="header-user" title={user.name}>Welcome, {user.name}</span>
