@@ -56,9 +56,18 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       return { success: true };
     } catch (error) {
+      let message = 'Signup failed';
+      
+      // Handle validation errors from backend
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        message = error.response.data.errors.map(e => e.msg).join(' | ');
+      } else if (error.response?.data?.message) {
+        message = error.response.data.message;
+      }
+      
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Signup failed' 
+        message
       };
     }
   };

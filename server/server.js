@@ -13,7 +13,7 @@ const uploadRoutes = require('./routes/upload');
 const errorHandler = require('./middleware/errorHandler');
 
 // Load environment variables
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,6 +24,7 @@ const isDefaultAllowedOrigin = (origin) => {
     const normalizedOrigin = normalizeOrigin(origin);
 
     return normalizedOrigin === 'http://localhost:3000'
+        || normalizedOrigin === 'http://localhost:3001'
         || /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(normalizedOrigin);
 };
 
