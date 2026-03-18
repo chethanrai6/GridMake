@@ -1,4 +1,4 @@
-# Drawing Grid Maker - MERN Stack Application
+# GridCraft - MERN Stack Application
 
 A complete MERN stack application for creating customizable drawing grids over images with authentication, project management, blog system, and export functionality.
 
@@ -77,8 +77,8 @@ A complete MERN stack application for creating customizable drawing grids over i
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/drawing-grid-maker.git
-   cd drawing-grid-maker
+   git clone https://github.com/your-username/gridcraft.git
+   cd gridcraft
    ```
 
 2. **Install server dependencies**
@@ -137,7 +137,7 @@ PORT=5000
 NODE_ENV=development
 
 # Database
-MONGODB_URI=mongodb://localhost:27017/drawing_grid_maker
+MONGODB_URI=mongodb://localhost:27017/gridcraft
 
 # JWT Configuration
 JWT_SECRET=your_super_secret_jwt_key_here
@@ -251,4 +251,4 @@ This project is licensed under the MIT License.
 
 ---
 
-**Made with ❤️ for artists and designers who need perfect grids**
+**GridCraft - Made with ❤️ for artists and designers who need perfect grids**
