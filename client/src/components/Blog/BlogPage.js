@@ -76,7 +76,7 @@ const BlogPage = () => {
   return (
     <div className="blog-page">
       <div className="blog-header">
-        <h1>Grid Maker Blog</h1>
+        <h1>GridCraft Blog</h1>
         <p>Tips, tutorials, and updates about creating perfect grids</p>
       </div>
 
