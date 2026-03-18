@@ -1,6 +1,6 @@
 # Drawing Grid Maker - MERN Stack Application
 
-A complete MERN stack application for creating customizable drawing grids over images with authentication, project management, and export functionality.
+A complete MERN stack application for creating customizable drawing grids over images with authentication, project management, blog system, and export functionality.
 
 ## 🚀 Features
 
@@ -8,13 +8,15 @@ A complete MERN stack application for creating customizable drawing grids over i
 - User signup/login with email & password
 - Passwords hashed with bcrypt
 - JWT token-based authentication
-- Protected routes for projects
+- Protected routes for projects and blog
 
 ### 🖼️ Image Upload
 - Support for PNG/JPG image uploads
 - Drag-and-drop interface
 - File size validation (max 10MB)
 - Server storage with GridFS support
+- Featured image uploads for blog posts
+- In-content markdown image uploads
 
 ### 📐 Grid Features
 - Adjustable rows (1-50) and columns (1-50)
@@ -22,8 +24,21 @@ A complete MERN stack application for creating customizable drawing grids over i
 - Color picker for grid lines
 - Toggle grid visibility (show/hide)
 - Optional diagonal lines inside cells
+- **Cell naming display** (A1, B2, C3... spreadsheet-style coordinates)
 - Reset to default settings
 - Real-time preview
+
+### 📝 Professional Blog System
+- **Full CRUD Operations**: Create, read, update, delete blog posts
+- **Featured Posts**: Highlight important articles
+- **Search & Filter**: Search posts by title, content, tags; filter by category
+- **Categories**: Tips, Tutorial, Feature, Update, Design, Other
+- **Draft/Publish Status**: Save drafts or publish posts
+- **View Tracking**: Track number of views per post
+- **SEO Optimization**: Meta title, description, keywords fields
+- **Author Attribution**: Track author information and publish dates
+- **Pagination**: Efficient pagination for blog listing
+- **Professional UI**: Modern, responsive design with smooth animations
 
 ### 📤 Export Features
 - Export final image + grid overlay as PNG
@@ -35,16 +50,21 @@ A complete MERN stack application for creating customizable drawing grids over i
 - **Authentication Pages**: Login/Signup with form validation
 - **Dashboard**: Project management with thumbnails and metadata
 - **Editor**: Main workspace with canvas and control panels
-- **Responsive Design**: Works on desktop and tablet devices
+- **Blog Pages**: 
+  - BlogPage: Public blog listing with search and filters
+  - BlogPost: Individual post viewer with full content
+  - BlogEditor: Editor for creating/editing posts (authenticated users only)
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: React.js, HTML5 Canvas, CSS3
+- **Frontend**: React.js, HTML5 Canvas, CSS3, React Router
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB with Mongoose ODM
 - **Authentication**: JWT (JSON Web Tokens) + bcrypt
 - **File Upload**: Multer middleware
-- **Image Processing**: HTML5 Canvas API
+- **Image Processing**: HTML5 Canvas API, Sharp
+- **API**: RESTful API with proper error handling
 
 ## 🚦 Getting Started
 
@@ -144,8 +164,22 @@ CLIENT_URL=http://localhost:3000
 - `PUT /api/projects/:id` - Update project
 - `DELETE /api/projects/:id` - Delete project
 
+### Blog Routes (Public & Protected)
+**Public Endpoints:**
+- `GET /api/blog` - List all published blog posts with pagination
+- `GET /api/blog/featured/posts` - Get featured blog posts (max 5)
+- `GET /api/blog/categories` - Get available blog categories
+- `GET /api/blog/:slug` - Get individual blog post by slug
+
+**Protected Endpoints (Authenticated Users Only):**
+- `POST /api/blog` - Create new blog post
+- `PUT /api/blog/:id` - Update blog post (author only)
+- `DELETE /api/blog/:id` - Delete blog post (author only)
+- `GET /api/blog/author/drafts` - Get user's draft posts
+
 ### Upload Routes
 - `POST /api/upload` - Upload image file
+- `POST /api/upload/blog` - Upload blog featured image or in-content image
 
 ## 📊 Database Models
 
@@ -171,8 +205,33 @@ CLIENT_URL=http://localhost:3000
     lineColor: String (default: '#000000'),
     lineThickness: Number (default: 2),
     diagonals: Boolean (default: false),
-    gridVisible: Boolean (default: true)
+    gridVisible: Boolean (default: true),
+    showCellNames: Boolean (default: true)
   },
+  createdAt: Date (default: Date.now),
+  updatedAt: Date (default: Date.now)
+}
+```
+
+### Blog Model
+```javascript
+{
+  title: String (required),
+  slug: String (required, unique),
+  excerpt: String (required),
+  content: String (required, markdown),
+  category: String (enum: ['Tips', 'Tutorial', 'Feature', 'Update', 'Design', 'Other']),
+  tags: [String],
+  featuredImage: String,
+  author: ObjectId (ref: 'User', required),
+  authorName: String,
+  views: Number (default: 0),
+  featured: Boolean (default: false),
+  published: Boolean (default: false),
+  seoTitle: String,
+  seoDescription: String,
+  seoKeywords: String,
+  publishedAt: Date,
   createdAt: Date (default: Date.now),
   updatedAt: Date (default: Date.now)
 }
