@@ -26,7 +26,7 @@ const Header = () => {
           <div className="header-content">
             <Link to="/" className="header-brand" aria-label="Home">
               <span className="header-logo" aria-hidden="true"><FiLayers /></span>
-              <span className="header-title">Drawing Grid Maker</span>
+              <span className="header-title">GridCraft</span>
             </Link>
           </div>
         </div>

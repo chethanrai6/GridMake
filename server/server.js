@@ -88,7 +88,7 @@ app.use('/api/blog', blogRoutes);
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
-        message: 'Drawing Grid Maker API is running',
+        message: 'GridCraft API is running',
         timestamp: new Date().toISOString()
     });
 });

@@ -1,7 +1,7 @@
 {
   "name": "drawing-grid-maker-client",
   "version": "1.0.0",
-  "description": "Frontend React application for Drawing Grid Maker",
+  "description": "Frontend React application for GridCraft",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",

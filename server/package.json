@@ -1,7 +1,7 @@
 {
   "name": "drawing-grid-maker-server",
   "version": "1.0.0",
-  "description": "Backend API for Drawing Grid Maker MERN application",
+  "description": "Backend API for GridCraft MERN application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
