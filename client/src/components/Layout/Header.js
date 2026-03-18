@@ -42,7 +42,7 @@ const Header = () => {
           <div className="header-content">
             <Link to="/" className="header-brand" aria-label="Home">
               <span className="header-logo" aria-hidden="true"><FiLayers /></span>
-              <span className="header-title">Drawing Grid Maker</span>
+              <span className="header-title">GridCraft</span>
             </Link>
             <nav className="header-nav">
               <Link to="/blog" className="btn btn-outline btn-icon">
@@ -71,7 +71,7 @@ const Header = () => {
             <span className="header-logo" aria-hidden="true">
               <FiLayers />
             </span>
-            <span className="header-title">Drawing Grid Maker</span>
+            <span className="header-title">GridCraft</span>
           </Link>
 
           <nav className="header-nav">

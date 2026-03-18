@@ -53,7 +53,7 @@ const Signup = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <h1 className="auth-title">Drawing Grid Maker</h1>
+        <h1 className="auth-title">GridCraft</h1>
         <p className="auth-subtitle">Create custom grids for your images</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>

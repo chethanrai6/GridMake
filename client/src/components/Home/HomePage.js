@@ -206,9 +206,9 @@ export default function HomePage() {
         <div className="container home-footer-inner">
           <span className="footer-brand">
             <FiLayers className="footer-logo-icon" />
-            Drawing Grid Maker
+            GridCraft
           </span>
-          <p className="footer-copy">© {new Date().getFullYear()} Drawing Grid Maker. All rights reserved.</p>
+          <p className="footer-copy">© {new Date().getFullYear()} GridCraft. All rights reserved.</p>
         </div>
       </footer>
 
