@@ -5,9 +5,7 @@ const validateSignup = [
     body('name')
         .trim()
         .isLength({ min: 2, max: 50 })
-        .withMessage('Name must be between 2 and 50 characters')
-        .matches(/^[a-zA-Z\s]+$/)
-        .withMessage('Name can only contain letters and spaces'),
+        .withMessage('Name must be between 2 and 50 characters'),
 
     body('email')
         .isEmail()
@@ -17,8 +15,6 @@ const validateSignup = [
     body('password')
         .isLength({ min: 6 })
         .withMessage('Password must be at least 6 characters long')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-        .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
 ];
 
 // User login validation
@@ -41,8 +37,9 @@ const validateProject = [
         .withMessage('Project name must be between 1 and 100 characters'),
 
     body('imagePath')
+        .optional({ checkFalsy: true })
         .notEmpty()
-        .withMessage('Image path is required'),
+        .withMessage('Image path cannot be empty'),
 
     body('gridSettings.rows')
         .optional()
@@ -62,17 +59,19 @@ const validateProject = [
     body('gridSettings.lineColor')
         .optional()
         .matches(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
-        .withMessage('Line color must be a valid hex color'),
+        .withMessage('Line color must be a valid hex color (e.g., #000000 or #FFF)'),
 
     body('gridSettings.diagonals')
         .optional()
         .isBoolean()
-        .withMessage('Diagonals must be a boolean'),
+        .withMessage('Diagonals must be true or false'),
 
     body('gridSettings.gridVisible')
         .optional()
         .isBoolean()
-        .withMessage('Grid visible must be a boolean')
+        .withMessage('Grid visibility must be true or false'),
+
+
 ];
 
 // MongoDB ObjectId validation

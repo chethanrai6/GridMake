@@ -48,7 +48,7 @@ const projectSchema = new mongoose.Schema({
     },
     imagePath: {
         type: String,
-        required: [true, 'Image path is required']
+        default: null
     },
     gridSettings: {
         type: gridSettingsSchema,

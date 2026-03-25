@@ -56,19 +56,28 @@ const createProject = async (req, res, next) => {
         // Check for validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            const errorMessages = errors.array().map(e => `${e.param}: ${e.msg}`).join('; ');
             return res.status(400).json({
                 success: false,
-                message: 'Validation failed',
+                message: `Validation failed: ${errorMessages}`,
                 errors: errors.array()
             });
         }
 
         const { name, imagePath, gridSettings } = req.body;
 
+        // Validate that at least project name is provided
+        if (!name || name.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Project name is required'
+            });
+        }
+
         const project = new Project({
             owner: req.userId,
-            name,
-            imagePath,
+            name: name.trim(),
+            imagePath: imagePath || null,
             gridSettings: gridSettings || {}
         });
 
@@ -92,9 +101,10 @@ const updateProject = async (req, res, next) => {
         // Check for validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            const errorMessages = errors.array().map(e => `${e.param}: ${e.msg}`).join('; ');
             return res.status(400).json({
                 success: false,
-                message: 'Validation failed',
+                message: `Validation failed: ${errorMessages}`,
                 errors: errors.array()
             });
         }

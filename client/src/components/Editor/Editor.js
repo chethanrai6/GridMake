@@ -159,43 +159,79 @@ const Editor = () => {
   };
 
   const handleSave = async () => {
-    if (!image) {
-      toast.error('Please upload an image first');
-      return;
-    }
-
+    // Validate project name
     if (!projectName.trim()) {
       toast.error('Please enter a project name');
       return;
     }
 
+    if (projectName.trim().length > 100) {
+      toast.error('Project name cannot exceed 100 characters');
+      return;
+    }
+
+    // Validate image is uploaded
+    if (!image || !imagePath) {
+      toast.error('Please upload an image before saving');
+      return;
+    }
+
+    // Validate grid settings
+    if (gridSettings.rows < 1 || gridSettings.rows > 50) {
+      toast.error('Rows must be between 1 and 50');
+      return;
+    }
+
+    if (gridSettings.cols < 1 || gridSettings.cols > 50) {
+      toast.error('Columns must be between 1 and 50');
+      return;
+    }
+
+    if (gridSettings.lineThickness < 1 || gridSettings.lineThickness > 20) {
+      toast.error('Line thickness must be between 1 and 20px');
+      return;
+    }
+
+    // Validate hex color format
+    const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    if (!hexColorRegex.test(gridSettings.lineColor)) {
+      toast.error('Line color must be a valid hex color (e.g., #000000 or #FFF)');
+      return;
+    }
+
     setLoading(true);
     try {
-      if (!imagePath) {
-        toast.error('Please upload an image before saving');
-        return;
-      }
-
       const projectData = {
-        name: projectName,
+        name: projectName.trim(),
         imagePath: imagePath,
         gridSettings
       };
 
       let result;
-      if (currentProject) {
+      
+      // Check if this is a new project (no valid ID yet) or existing project
+      if (currentProject?._id) {
+        // Update existing project
         result = await updateProject(currentProject._id, projectData);
-      } else {
-        result = await createProject(projectData);
-      }
-
-      if (result.success) {
-        toast.success(`Project ${currentProject ? 'updated' : 'saved'} successfully`);
-        if (!currentProject) {
-          navigate(`/editor/${result.project._id}`);
+        
+        if (result && result.success) {
+          toast.success('Project updated successfully');
+        } else {
+          const errorMsg = result?.message || 'Failed to update project';
+          toast.error(errorMsg);
         }
       } else {
-        toast.error(result.message);
+        // Create new project (currentProject._id is null/undefined)
+        result = await createProject(projectData);
+        
+        if (result && result.success) {
+          toast.success('Project created successfully');
+          // Redirect to new project after creation
+          navigate(`/editor/${result.project._id}`);
+        } else {
+          const errorMsg = result?.message || 'Failed to create project';
+          toast.error(errorMsg);
+        }
       }
     } catch (error) {
       toast.error('Failed to save project');

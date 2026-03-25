@@ -32,7 +32,7 @@ router.post('/', validateProject, createProject);
 // @route   PUT /api/projects/:id
 // @desc    Update project
 // @access  Private
-router.put('/:id', [...validateObjectId, ...validateProject], updateProject);
+router.put('/:id', validateObjectId, validateProject, updateProject);
 
 // @route   DELETE /api/projects/:id
 // @desc    Delete project
