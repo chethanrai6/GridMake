@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiEdit3, FiImage, FiTrash2 } from 'react-icons/fi';
+import { FiEdit3, FiTrash2 } from 'react-icons/fi';
 import { resolveAssetUrl } from '../../services/api';
 
 const ProjectCard = ({ project, onLoad, onDelete }) => {
@@ -19,16 +19,8 @@ const ProjectCard = ({ project, onLoad, onDelete }) => {
           <img 
             src={resolveAssetUrl(project.imagePath)}
             alt={project.name}
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'block';
-            }}
           />
         ) : null}
-        <div className={`project-fallback ${project.imagePath ? 'hidden' : ''}`}>
-          <FiImage aria-hidden="true" />
-          No Image
-        </div>
       </div>
 
       <div className="project-info">
